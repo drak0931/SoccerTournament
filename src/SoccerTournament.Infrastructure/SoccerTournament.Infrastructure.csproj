@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Infrastructure: implementa los contratos de Application (EF Core, Dapper, UnitOfWork, idempotencia, seed). -->
+  <ItemGroup>
+    <ProjectReference Include="..\SoccerTournament.Application\SoccerTournament.Application.csproj" />
+  </ItemGroup>
+
+  <!-- Scripts de esquema versionados, embebidos para ejecutarlos con DbUp al iniciar -->
+  <ItemGroup>
+    <EmbeddedResource Include="Persistence\Scripts\*.sql" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,16 @@
+# Normaliza finales de línea en el repositorio (LF) y los adapta al checkout de cada sistema
+* text=auto
+
+# Archivos que deben conservar LF siempre (se ejecutan dentro de contenedores Linux)
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.Dockerfile text eol=lf
+docker-compose*.yml text eol=lf
+
+# Archivos de solución de Visual Studio
+*.sln text eol=crlf
+
+# Binarios
+*.png binary
+*.jpg binary
+*.ico binary

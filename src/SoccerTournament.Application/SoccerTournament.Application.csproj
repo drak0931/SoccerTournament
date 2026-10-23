@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Application: casos de uso (commands/queries). Depende únicamente de Domain. -->
+  <ItemGroup>
+    <ProjectReference Include="..\SoccerTournament.Domain\SoccerTournament.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

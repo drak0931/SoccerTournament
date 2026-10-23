@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!-- Api: solo orquesta. Referencia Infrastructure únicamente para el registro de dependencias (composition root). -->
+  <ItemGroup>
+    <ProjectReference Include="..\SoccerTournament.Application\SoccerTournament.Application.csproj" />
+    <ProjectReference Include="..\SoccerTournament.Infrastructure\SoccerTournament.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" />
+  </ItemGroup>
+
+</Project>

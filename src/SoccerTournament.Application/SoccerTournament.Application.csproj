@@ -5,4 +5,17 @@
     <ProjectReference Include="..\SoccerTournament.Domain\SoccerTournament.Domain.csproj" />
   </ItemGroup>
 
+  <!-- Solo abstracciones: sin EF Core, Dapper ni ASP.NET Core -->
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
+  <!-- Permite probar tipos internos (Dispatcher) desde las pruebas unitarias -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="SoccerTournament.Application.Tests" />
+  </ItemGroup>
+
 </Project>

@@ -91,14 +91,10 @@ public sealed class Match : AggregateRoot
     /// </summary>
     public Result RegisterResult(int homeGoals, int awayGoals, IReadOnlyCollection<ScoredGoal> goals, DateTime registeredAt)
     {
-        if (Status == MatchStatus.Finished)
+        var canRegister = CanRegisterResult();
+        if (canRegister.IsFailure)
         {
-            return MatchErrors.ResultAlreadyRegistered;
-        }
-
-        if (Status == MatchStatus.Cancelled)
-        {
-            return MatchErrors.MatchCancelled;
+            return canRegister;
         }
 
         var validation = ValidateResult(homeGoals, awayGoals, goals);
@@ -143,6 +139,16 @@ public sealed class Match : AggregateRoot
 
         return Result.Success();
     }
+
+    /// <summary>
+    /// Indica si el partido admite registrar resultado (solo partidos programados). No modifica estado.
+    /// </summary>
+    public Result CanRegisterResult() => Status switch
+    {
+        MatchStatus.Finished => MatchErrors.ResultAlreadyRegistered,
+        MatchStatus.Cancelled => MatchErrors.MatchCancelled,
+        _ => Result.Success()
+    };
 
     public bool IsParticipant(Guid teamId) => teamId == HomeTeamId || teamId == AwayTeamId;
 

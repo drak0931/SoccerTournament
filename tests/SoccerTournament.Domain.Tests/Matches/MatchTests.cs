@@ -150,6 +150,18 @@ public class MatchTests
     }
 
     [Fact]
+    public void CanRegisterResult_ShouldReflectStatusWithoutModifyingMatch()
+    {
+        var scheduled = CreateScheduledMatch();
+        var cancelled = CreateScheduledMatch();
+        cancelled.Cancel();
+
+        Assert.True(scheduled.CanRegisterResult().IsSuccess);
+        Assert.Equal(MatchErrors.MatchCancelled, cancelled.CanRegisterResult().Error);
+        Assert.Equal(MatchStatus.Scheduled, scheduled.Status);
+    }
+
+    [Fact]
     public void Cancel_FinishedMatch_ShouldReturnConflict()
     {
         var match = CreateScheduledMatch();

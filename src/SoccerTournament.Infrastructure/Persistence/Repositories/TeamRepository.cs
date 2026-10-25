@@ -23,6 +23,9 @@ internal sealed class TeamRepository : ITeamRepository
     public Task<bool> ExistsAsync(Guid teamId, CancellationToken cancellationToken) =>
         _dbContext.Teams.AnyAsync(team => team.Id == teamId, cancellationToken);
 
+    public Task<bool> AnyAsync(CancellationToken cancellationToken) =>
+        _dbContext.Teams.AnyAsync(cancellationToken);
+
     public Task<bool> FullNameExistsAsync(string fullName, Guid? excludeTeamId, CancellationToken cancellationToken) =>
         _dbContext.Teams.AnyAsync(
             team => team.FullName == fullName && (excludeTeamId == null || team.Id != excludeTeamId),

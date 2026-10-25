@@ -21,7 +21,10 @@ public abstract record PagedRequest
 
     public SortDirection SortDirection { get; init; } = SortDirection.Asc;
 
-    public int Offset => (PageNumber - 1) * PageSize;
+    /// <summary>
+    /// Filas a omitir. Es long para evitar desbordamiento con números de página muy grandes (OFFSET acepta BIGINT).
+    /// </summary>
+    public long Offset => (PageNumber - 1L) * PageSize;
 }
 
 public enum SortDirection

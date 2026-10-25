@@ -11,6 +11,12 @@
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
   </ItemGroup>
 
+  <ItemGroup Label="Infrastructure">
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.31" />
+    <PackageVersion Include="dbup-sqlserver" Version="6.0.16" />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
+  </ItemGroup>
+
   <ItemGroup Label="Api">
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.9.0" />
   </ItemGroup>

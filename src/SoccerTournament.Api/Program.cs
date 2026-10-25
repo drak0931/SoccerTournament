@@ -1,12 +1,21 @@
+using SoccerTournament.Application;
+using SoccerTournament.Infrastructure;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Etapa 0: esqueleto mínimo. Logging estructurado, tracing, CQRS e infraestructura se agregan en etapas siguientes.
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
+
+// Logging estructurado, tracing, idempotencia y controllers se completan en las Etapas 6 y 7
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
+
+// Aplica scripts de BD pendientes antes de aceptar requests
+await app.Services.InitializeDatabaseAsync();
 
 if (app.Environment.IsDevelopment())
 {

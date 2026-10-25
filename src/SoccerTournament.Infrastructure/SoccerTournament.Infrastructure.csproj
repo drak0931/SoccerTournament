@@ -5,9 +5,19 @@
     <ProjectReference Include="..\SoccerTournament.Application\SoccerTournament.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="dbup-sqlserver" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+  </ItemGroup>
+
   <!-- Scripts de esquema versionados, embebidos para ejecutarlos con DbUp al iniciar -->
   <ItemGroup>
     <EmbeddedResource Include="Persistence\Scripts\*.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="SoccerTournament.Infrastructure.Tests" />
   </ItemGroup>
 
 </Project>

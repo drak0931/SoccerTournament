@@ -12,6 +12,7 @@ using SoccerTournament.Infrastructure.Persistence.Auditing;
 using SoccerTournament.Infrastructure.Persistence.DomainEvents;
 using SoccerTournament.Infrastructure.Persistence.Migrations;
 using SoccerTournament.Infrastructure.Persistence.Repositories;
+using SoccerTournament.Infrastructure.Persistence.Seeding;
 using SoccerTournament.Infrastructure.ReadSide;
 
 namespace SoccerTournament.Infrastructure;
@@ -42,6 +43,7 @@ public static class DependencyInjection
         AddReadSide(services);
 
         services.AddTransient<DatabaseMigrator>();
+        services.AddScoped<DatabaseSeeder>();
 
         return services;
     }

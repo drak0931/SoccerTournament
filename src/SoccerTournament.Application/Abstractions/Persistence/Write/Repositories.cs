@@ -14,6 +14,11 @@ public interface ITeamRepository
 
     Task<bool> ExistsAsync(Guid teamId, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Indica si hay al menos un equipo registrado (usado por el seed para detectar una BD vacía).
+    /// </summary>
+    Task<bool> AnyAsync(CancellationToken cancellationToken);
+
     Task<bool> FullNameExistsAsync(string fullName, Guid? excludeTeamId, CancellationToken cancellationToken);
 
     Task<bool> ShortNameExistsAsync(string shortName, Guid? excludeTeamId, CancellationToken cancellationToken);

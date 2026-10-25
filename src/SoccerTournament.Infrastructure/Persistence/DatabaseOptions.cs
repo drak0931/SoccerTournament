@@ -16,6 +16,11 @@ public sealed class DatabaseOptions
     public bool RunMigrationsOnStartup { get; set; } = true;
 
     /// <summary>
+    /// Carga datos de prueba al iniciar si la BD no tiene equipos.
+    /// </summary>
+    public bool SeedOnStartup { get; set; } = true;
+
+    /// <summary>
     /// Reintentos de conexión al iniciar (la BD del contenedor puede tardar en estar lista).
     /// </summary>
     public int StartupMaxRetries { get; set; } = 10;

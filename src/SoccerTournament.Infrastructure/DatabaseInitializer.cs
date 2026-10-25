@@ -3,11 +3,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SoccerTournament.Infrastructure.Persistence;
 using SoccerTournament.Infrastructure.Persistence.Migrations;
+using SoccerTournament.Infrastructure.Persistence.Seeding;
 
 namespace SoccerTournament.Infrastructure;
 
 /// <summary>
-/// Prepara la BD al iniciar la API: aplica scripts pendientes (y en la Etapa 5, el seed de datos).
+/// Prepara la BD al iniciar la API: aplica scripts pendientes y, si la BD está vacía, carga el seed de datos.
 /// </summary>
 public static class DatabaseInitializer
 {
@@ -30,5 +31,14 @@ public static class DatabaseInitializer
             // Sin esquema válido la API no puede atender requests: se detiene el arranque
             throw new InvalidOperationException(migration.ErrorMessage);
         }
+
+        if (!options.SeedOnStartup)
+        {
+            logger.LogInformation("Seed de datos deshabilitado (Database:SeedOnStartup = false)");
+            return;
+        }
+
+        // Un seed fallido no impide operar la API: el error queda registrado y se reintenta en el próximo arranque
+        await provider.GetRequiredService<DatabaseSeeder>().SeedAsync(cancellationToken);
     }
 }

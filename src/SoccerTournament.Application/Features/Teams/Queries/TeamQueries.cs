@@ -35,6 +35,14 @@ internal sealed class GetTeamsQueryValidator : PagedRequestValidator<GetTeamsQue
     {
         RuleFor(query => query.Name).MaximumLength(Team.FullNameMaxLength);
 
+        RuleFor(query => query.FoundedFrom)
+            .InclusiveBetween(Team.MinFoundedYear, Team.MaxFoundedYear)
+            .When(query => query.FoundedFrom.HasValue);
+
+        RuleFor(query => query.FoundedTo)
+            .InclusiveBetween(Team.MinFoundedYear, Team.MaxFoundedYear)
+            .When(query => query.FoundedTo.HasValue);
+
         RuleFor(query => query)
             .Must(query => query.FoundedFrom is null || query.FoundedTo is null || query.FoundedFrom <= query.FoundedTo)
             .WithName(nameof(GetTeamsQuery.FoundedFrom))

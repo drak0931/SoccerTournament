@@ -1,3 +1,4 @@
+using SoccerTournament.Api;
 using SoccerTournament.Application;
 using SoccerTournament.Infrastructure;
 
@@ -5,17 +6,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
-
-// Logging estructurado, tracing, idempotencia y controllers se completan en las Etapas 6 y 7
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddHealthChecks();
+builder.Services.AddPresentation(builder.Configuration);
 
 var app = builder.Build();
 
-// Aplica scripts de BD pendientes antes de aceptar requests
+// Aplica scripts de BD pendientes y el seed antes de aceptar requests
 await app.Services.InitializeDatabaseAsync();
+
+app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
 {
@@ -27,3 +25,6 @@ app.MapControllers();
 app.MapHealthChecks("/health");
 
 app.Run();
+
+// Expone Program para las pruebas de integración HTTP (WebApplicationFactory)
+public partial class Program;

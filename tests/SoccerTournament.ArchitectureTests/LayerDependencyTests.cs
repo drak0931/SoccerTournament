@@ -76,6 +76,20 @@ public class LayerDependencyTests
     }
 
     [Fact]
+    public void ApiControllers_ShouldOnlyOrchestrateThroughApplication()
+    {
+        // Los controllers no conocen Infrastructure ni tecnologías de persistencia: solo IDispatcher
+        var result = Types.InAssembly(Api.AssemblyReference.Assembly)
+            .That().ResideInNamespace("SoccerTournament.Api.Controllers")
+            .ShouldNot()
+            .HaveDependencyOnAny(InfrastructureNamespace, "Microsoft.EntityFrameworkCore", "Dapper", "Microsoft.Data.SqlClient",
+                "SoccerTournament.Application.Abstractions.Persistence")
+            .GetResult();
+
+        AssertSuccessful(result);
+    }
+
+    [Fact]
     public void Domain_ShouldNotReferenceOtherSolutionAssemblies()
     {
         var references = GetSolutionReferences(DomainAssembly);

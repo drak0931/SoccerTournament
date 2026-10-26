@@ -1,0 +1,141 @@
+# Pruebas manuales de la API (Visual Studio / VS Code REST Client).
+# 1) Ejecute "Listar equipos" y copie un id en @teamId; repita con partidos y jugadores.
+# 2) Las peticiones POST exigen Idempotency-Key: repítalas sin cambiar la clave para ver la respuesta original
+#    (header Idempotency-Replayed: true). Cambie la clave para crear un recurso nuevo.
+
+@baseUrl = http://localhost:5019
+@teamId = 00000000-0000-0000-0000-000000000000
+@otherTeamId = 00000000-0000-0000-0000-000000000000
+@matchId = 00000000-0000-0000-0000-000000000000
+@homePlayerId = 00000000-0000-0000-0000-000000000000
+@awayPlayerId = 00000000-0000-0000-0000-000000000000
+
+### Tabla de posiciones (orden oficial: puntos, diferencia de gol, goles a favor)
+GET {{baseUrl}}/api/standings
+
+### Goleadores
+GET {{baseUrl}}/api/scorers?pageSize=5
+
+### Listar equipos con filtro, paginación y ordenamiento dinámico
+GET {{baseUrl}}/api/teams?name=de&pageNumber=1&pageSize=10&sortBy=foundedYear&sortDirection=desc
+
+### Detalle de equipo
+GET {{baseUrl}}/api/teams/{{teamId}}
+
+### Crear equipo (201 + Location). Repetir con la misma clave devuelve la misma respuesta sin duplicar
+POST {{baseUrl}}/api/teams
+Content-Type: application/json
+Idempotency-Key: crear-equipo-001
+
+{
+  "fullName": "Club Deportivo Ejemplo",
+  "shortName": "CDE",
+  "foundedYear": "1990-05-01"
+}
+
+### Misma clave con otro cuerpo → 409 Idempotency.KeyReused
+POST {{baseUrl}}/api/teams
+Content-Type: application/json
+Idempotency-Key: crear-equipo-001
+
+{
+  "fullName": "Otro Club",
+  "shortName": "OTR"
+}
+
+### POST sin Idempotency-Key → 400
+POST {{baseUrl}}/api/teams
+Content-Type: application/json
+
+{
+  "fullName": "Club Sin Clave",
+  "shortName": "CSC"
+}
+
+### Validación → 400 con detalle por campo
+POST {{baseUrl}}/api/teams
+Content-Type: application/json
+Idempotency-Key: equipo-invalido-001
+
+{
+  "fullName": "",
+  "shortName": ""
+}
+
+### Reemplazo completo (PUT, idempotente)
+PUT {{baseUrl}}/api/teams/{{teamId}}
+Content-Type: application/json
+
+{
+  "fullName": "Club Deportivo Volcanes",
+  "shortName": "VOL",
+  "foundedYear": "1925-03-15"
+}
+
+### Modificación parcial (PATCH, JSON Merge Patch)
+PATCH {{baseUrl}}/api/teams/{{teamId}}
+Content-Type: application/merge-patch+json
+
+{
+  "shortName": "VOLC"
+}
+
+### Eliminar equipo con jugadores/partidos → 409 Team.HasDependencies
+DELETE {{baseUrl}}/api/teams/{{teamId}}
+
+### Jugadores de un equipo
+GET {{baseUrl}}/api/teams/{{teamId}}/players?sortBy=jerseyNumber
+
+### Registrar jugador en un equipo
+POST {{baseUrl}}/api/teams/{{teamId}}/players
+Content-Type: application/json
+Idempotency-Key: jugador-001
+
+{
+  "firstName": "Nelson",
+  "lastName": "Aguilar",
+  "jerseyNumber": 7,
+  "position": "midfielder"
+}
+
+### Todos los jugadores con filtros
+GET {{baseUrl}}/api/players?position=forward&sortBy=teamName
+
+### Partidos filtrados por estado, equipo y fechas (UTC)
+GET {{baseUrl}}/api/matches?status=scheduled&sortBy=scheduledAt
+
+### Detalle de partido con goles
+GET {{baseUrl}}/api/matches/{{matchId}}
+
+### Programar partido (fecha con zona horaria de El Salvador)
+POST {{baseUrl}}/api/matches
+Content-Type: application/json
+Idempotency-Key: partido-001
+
+{
+  "homeTeamId": "{{teamId}}",
+  "awayTeamId": "{{otherTeamId}}",
+  "scheduledAt": "2026-11-15T19:00:00-06:00"
+}
+
+### Registrar resultado (actualiza la tabla). Repetir con otra clave → 409 Match.ResultAlreadyRegistered
+POST {{baseUrl}}/api/matches/{{matchId}}/result
+Content-Type: application/json
+Idempotency-Key: resultado-001
+
+{
+  "homeGoals": 1,
+  "awayGoals": 1,
+  "goals": [
+    { "playerId": "{{homePlayerId}}", "teamId": "{{teamId}}", "minute": 23 },
+    { "playerId": "{{awayPlayerId}}", "teamId": "{{otherTeamId}}", "minute": 77 }
+  ]
+}
+
+### Cancelar partido programado (204)
+PATCH {{baseUrl}}/api/matches/{{matchId}}
+Content-Type: application/merge-patch+json
+
+{
+  "status": "cancelled"
+}

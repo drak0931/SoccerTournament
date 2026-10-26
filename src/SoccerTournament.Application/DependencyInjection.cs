@@ -1,3 +1,4 @@
+using System.Globalization;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using SoccerTournament.Application.Abstractions.Behaviors;
@@ -32,6 +33,9 @@ public static class DependencyInjection
         services.AddScoped(typeof(IQueryPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
         services.AddValidatorsFromAssembly(AssemblyReference.Assembly, includeInternalTypes: true);
+
+        // Mensajes de validación en español, independientemente de la cultura del servidor
+        ValidatorOptions.Global.LanguageManager.Culture = new CultureInfo("es");
 
         return services;
     }

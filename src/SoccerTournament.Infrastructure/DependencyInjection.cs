@@ -4,6 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using SoccerTournament.Application.Abstractions.Clock;
+using SoccerTournament.Application.Abstractions.Idempotency;
+using SoccerTournament.Infrastructure.Idempotency;
 using SoccerTournament.Application.Abstractions.Persistence.Read;
 using SoccerTournament.Application.Abstractions.Persistence.Write;
 using SoccerTournament.Infrastructure.Clock;
@@ -41,6 +43,8 @@ public static class DependencyInjection
 
         AddWriteSide(services, connectionString);
         AddReadSide(services);
+
+        services.AddScoped<IIdempotencyStore, SqlIdempotencyStore>();
 
         services.AddTransient<DatabaseMigrator>();
         services.AddScoped<DatabaseSeeder>();

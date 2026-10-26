@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SoccerTournament.Application.Abstractions.Events;
 using SoccerTournament.Domain.Abstractions;
+using SoccerTournament.Infrastructure.Diagnostics;
 
 namespace SoccerTournament.Infrastructure.Persistence.DomainEvents;
 
@@ -28,6 +29,9 @@ internal sealed class DomainEventDispatcher
     {
         foreach (var domainEvent in domainEvents)
         {
+            using var activity = InfrastructureDiagnostics.ActivitySource.StartActivity($"DomainEvent {domainEvent.GetType().Name}");
+            activity?.SetTag("app.domain_event.id", domainEvent.EventId);
+
             var (handlerType, handleMethod) = HandlerCache.GetOrAdd(domainEvent.GetType(), static eventType =>
             {
                 var type = typeof(IDomainEventHandler<>).MakeGenericType(eventType);

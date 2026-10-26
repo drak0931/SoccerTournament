@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
+using Serilog.Core;
 using SoccerTournament.Application.Abstractions.Idempotency;
 using SoccerTournament.Application.Abstractions.Messaging;
 
@@ -19,6 +20,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
 
     public InMemoryIdempotencyStore IdempotencyStore { get; } = new();
 
+    public CollectingLogSink LogSink { get; } = new();
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing");
@@ -32,6 +35,9 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
 
             services.RemoveAll<IIdempotencyStore>();
             services.AddSingleton<IIdempotencyStore>(IdempotencyStore);
+
+            // Serilog toma los sinks registrados en DI (ReadFrom.Services)
+            services.AddSingleton<ILogEventSink>(LogSink);
         });
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SoccerTournament.Application.Abstractions.Persistence.Write;
 using SoccerTournament.Domain.Abstractions;
+using SoccerTournament.Infrastructure.Diagnostics;
 using SoccerTournament.Infrastructure.Persistence.DomainEvents;
 
 namespace SoccerTournament.Infrastructure.Persistence;
@@ -31,6 +32,8 @@ internal sealed class UnitOfWork : IUnitOfWork
 
     public async Task<Result> CommitAsync(CancellationToken cancellationToken = default)
     {
+        using var activity = InfrastructureDiagnostics.ActivitySource.StartActivity("UnitOfWork.Commit");
+
         var aggregates = _dbContext.ChangeTracker
             .Entries<AggregateRoot>()
             .Select(entry => entry.Entity)
@@ -38,6 +41,7 @@ internal sealed class UnitOfWork : IUnitOfWork
             .ToList();
 
         var domainEvents = aggregates.SelectMany(aggregate => aggregate.DomainEvents).ToList();
+        activity?.SetTag("app.domain_events.count", domainEvents.Count);
 
         // Los eventos se persisten en la MISMA transacción que los cambios que los originaron
         _dbContext.DomainEventRecords.AddRange(
@@ -46,6 +50,7 @@ internal sealed class UnitOfWork : IUnitOfWork
         var commitResult = await SaveInTransactionAsync(cancellationToken);
         if (commitResult.IsFailure)
         {
+            activity?.SetTag("app.error.code", commitResult.Error.Code);
             return commitResult;
         }
 

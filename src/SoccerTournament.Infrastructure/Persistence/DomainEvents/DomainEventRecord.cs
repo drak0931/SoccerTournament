@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text.Json;
+using SoccerTournament.Application.Abstractions.Diagnostics;
 using SoccerTournament.Domain.Abstractions;
 
 namespace SoccerTournament.Infrastructure.Persistence.DomainEvents;
@@ -12,7 +13,7 @@ internal sealed class DomainEventRecord
     /// <summary>
     /// Clave de baggage de <see cref="Activity"/> donde el middleware de trazabilidad deja el CorrelationId.
     /// </summary>
-    public const string CorrelationIdBaggageKey = "correlation.id";
+    public const string CorrelationIdBaggageKey = CorrelationContext.BaggageKey;
 
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
 

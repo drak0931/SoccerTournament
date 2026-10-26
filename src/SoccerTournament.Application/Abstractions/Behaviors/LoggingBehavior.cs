@@ -1,13 +1,15 @@
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
+using SoccerTournament.Application.Abstractions.Diagnostics;
 using SoccerTournament.Application.Abstractions.Messaging;
 using SoccerTournament.Domain.Abstractions;
 
 namespace SoccerTournament.Application.Abstractions.Behaviors;
 
 /// <summary>
-/// Registra con logs estructurados el inicio, fin, duración y resultado de cada caso de uso.
-/// No registra el contenido del request para evitar exponer datos sensibles.
+/// Observabilidad de cada caso de uso: abre un span ("Command X" / "Query Y") y registra con logs
+/// estructurados el inicio, fin, duración y resultado. No registra el contenido del request
+/// para evitar exponer datos sensibles.
 /// </summary>
 internal sealed class LoggingBehavior<TRequest, TResult> :
     ICommandPipelineBehavior<TRequest, TResult>,
@@ -25,6 +27,10 @@ internal sealed class LoggingBehavior<TRequest, TResult> :
     {
         var requestName = typeof(TRequest).Name;
         var requestKind = request is ICommandBase ? "Command" : "Query";
+
+        using var activity = ApplicationDiagnostics.ActivitySource.StartActivity($"{requestKind} {requestName}");
+        activity?.SetTag("app.request.kind", requestKind);
+        activity?.SetTag("app.request.name", requestName);
 
         using var scope = _logger.BeginScope(new Dictionary<string, object>
         {
@@ -46,7 +52,10 @@ internal sealed class LoggingBehavior<TRequest, TResult> :
         }
         else
         {
-            // Un fallo de negocio no es un error del sistema: se registra como Warning
+            // Un fallo de negocio no es un error del sistema: se registra como Warning y el span no se marca como error
+            activity?.SetTag("app.error.type", result.Error.Type.ToString());
+            activity?.SetTag("app.error.code", result.Error.Code);
+
             _logger.LogWarning(
                 "{RequestKind} {RequestName} finalizó con error {ErrorType} {ErrorCode} en {ElapsedMilliseconds} ms",
                 requestKind, requestName, result.Error.Type, result.Error.Code, stopwatch.ElapsedMilliseconds);

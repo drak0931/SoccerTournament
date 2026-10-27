@@ -1,0 +1,16 @@
+# Dependencias
+/node_modules
+
+# Build de Next.js
+/.next/
+/out/
+*.tsbuildinfo
+next-env.d.ts
+
+# Variables de entorno locales (usar .env.example como plantilla)
+.env
+.env.local
+.env.*.local
+
+# Logs
+npm-debug.log*

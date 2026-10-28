@@ -51,6 +51,12 @@ public static class ObservabilityExtensions
         return services;
     }
 
+    /// <summary>
+    /// Activa el exportador de trazas antes de que el host arranque. Sin esto, el trabajo previo a
+    /// app.Run() (scripts de BD y seed) genera TraceId pero sus spans no llegan a Jaeger.
+    /// </summary>
+    public static void StartTracing(this IServiceProvider services) => services.GetService<TracerProvider>();
+
     public static IApplicationBuilder UseObservability(this IApplicationBuilder app)
     {
         app.UseMiddleware<CorrelationIdMiddleware>();

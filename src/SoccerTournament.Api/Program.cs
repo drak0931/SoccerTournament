@@ -12,6 +12,8 @@ builder.Services.AddPresentation(builder.Configuration);
 
 var app = builder.Build();
 
+app.Services.StartTracing();
+
 // Aplica scripts de BD pendientes y el seed antes de aceptar requests
 try
 {

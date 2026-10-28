@@ -37,6 +37,9 @@ public static class MatchErrors
     public static readonly Error GoalScorerNotInTeam =
         Error.Validation("Uno o más goleadores no pertenecen al equipo al que se acredita el gol.", "Match.GoalScorerNotInTeam");
 
+    public static readonly Error UnsupportedStatusChange =
+        Error.Validation("Solo se permite cambiar el estado a 'cancelled'. Para finalizar un partido registre su resultado.", "Match.UnsupportedStatusChange");
+
     public static readonly Error ResultAlreadyRegistered =
         Error.Conflict("El partido ya tiene un resultado registrado.", "Match.ResultAlreadyRegistered");
 

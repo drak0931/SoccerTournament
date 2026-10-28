@@ -6,9 +6,19 @@ namespace SoccerTournament.Infrastructure.Tests.ReadSide;
 public class SqlBuildingTests
 {
     private static readonly SortMap Sort = new(
-        new Dictionary<string, string> { ["fullName"] = "t.full_name", ["createdAt"] = "t.created_at" },
+        new Dictionary<string, string> { ["fullName"] = "t.full_name", ["createdAt"] = "t.created_at", ["points"] = "t.points" },
         defaultOrderBy: "t.full_name ASC",
-        tieBreaker: "t.uuid ASC");
+        tieBreaker: "t.uuid ASC",
+        descendingByDefault: new[] { "points" });
+
+    [Theory]
+    [InlineData("points", null, "ORDER BY t.points DESC, t.uuid ASC")]
+    [InlineData("points", SortDirection.Asc, "ORDER BY t.points ASC, t.uuid ASC")]
+    [InlineData("fullName", null, "ORDER BY t.full_name ASC, t.uuid ASC")]
+    public void SortMap_WithoutDirection_ShouldUseNaturalDirectionOfField(string sortBy, SortDirection? direction, string expected)
+    {
+        Assert.Equal(expected, Sort.ToOrderByClause(sortBy, direction));
+    }
 
     [Theory]
     [InlineData("fullName", SortDirection.Asc, "ORDER BY t.full_name ASC, t.uuid ASC")]

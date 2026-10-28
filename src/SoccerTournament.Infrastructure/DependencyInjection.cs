@@ -72,6 +72,7 @@ public static class DependencyInjection
     private static void AddReadSide(IServiceCollection services)
     {
         services.AddSingleton<SqlConnectionFactory>();
+        services.AddHealthChecks().AddCheck<DatabaseHealthCheck>("sqlserver");
 
         services.AddScoped<ITeamReadService, TeamReadService>();
         services.AddScoped<IPlayerReadService, PlayerReadService>();

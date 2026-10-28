@@ -83,6 +83,18 @@ public class TeamTests
     }
 
     [Fact]
+    public void Update_WithSameData_ShouldBeIdempotentWithoutRaisingEvent()
+    {
+        var team = Team.Create("Club Original", "CO", new DateTime(1950, 1, 1)).Value;
+        team.ClearDomainEvents();
+
+        var result = team.Update(" Club Original ", "CO", new DateTime(1950, 1, 1));
+
+        Assert.True(result.IsSuccess);
+        Assert.Empty(team.DomainEvents);
+    }
+
+    [Fact]
     public void Update_WithInvalidData_ShouldNotModifyTeam()
     {
         var team = Team.Create("Club Original", "CO", null).Value;

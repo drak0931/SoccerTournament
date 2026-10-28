@@ -61,8 +61,17 @@ public sealed class Team : AggregateRoot
             return validation;
         }
 
-        FullName = fullName.Trim();
-        ShortName = shortName.Trim();
+        var normalizedFullName = fullName.Trim();
+        var normalizedShortName = shortName.Trim();
+
+        // PUT repetido con los mismos datos: idempotente, sin cambios ni evento
+        if (normalizedFullName == FullName && normalizedShortName == ShortName && foundedYear == FoundedYear)
+        {
+            return Result.Success();
+        }
+
+        FullName = normalizedFullName;
+        ShortName = normalizedShortName;
         FoundedYear = foundedYear;
 
         Raise(new TeamUpdatedDomainEvent(Id));

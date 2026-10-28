@@ -6,8 +6,6 @@ using SoccerTournament.Application.Abstractions.Messaging;
 using SoccerTournament.Application.Abstractions.Pagination;
 using SoccerTournament.Application.Features.Matches.Commands;
 using SoccerTournament.Application.Features.Matches.Queries;
-using SoccerTournament.Domain.Abstractions;
-using SoccerTournament.Domain.Matches;
 
 namespace SoccerTournament.Api.Controllers;
 
@@ -75,15 +73,6 @@ public sealed class MatchesController : ApiControllerBase
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> UpdateStatus(Guid matchId, [FromBody] UpdateMatchStatusRequest request, CancellationToken cancellationToken)
-    {
-        if (request.Status != MatchStatus.Cancelled)
-        {
-            return Problem(Error.Validation(
-                "Solo se permite cambiar el estado a 'cancelled'. Para finalizar un partido registre su resultado.",
-                "Match.UnsupportedStatusChange"));
-        }
-
-        return NoContentOrProblem(await Dispatcher.SendAsync(new CancelMatchCommand(matchId), cancellationToken));
-    }
+    public async Task<IActionResult> UpdateStatus(Guid matchId, [FromBody] UpdateMatchStatusRequest request, CancellationToken cancellationToken) =>
+        NoContentOrProblem(await Dispatcher.SendAsync(new ChangeMatchStatusCommand(matchId, request.Status), cancellationToken));
 }

@@ -20,7 +20,8 @@ internal sealed class TeamReadService : ITeamReadService
             ["createdAt"] = "t.created_at"
         },
         defaultOrderBy: "t.full_name ASC",
-        tieBreaker: "t.uuid ASC");
+        tieBreaker: "t.uuid ASC",
+        descendingByDefault: new[] { "createdAt" });
 
     private const string SelectColumns = """
         t.uuid         AS Id,

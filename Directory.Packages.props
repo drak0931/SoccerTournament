@@ -16,6 +16,7 @@
     <PackageVersion Include="dbup-sqlserver" Version="6.0.16" />
     <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
     <PackageVersion Include="Dapper" Version="2.1.66" />
+    <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="8.0.11" />
   </ItemGroup>
 
   <ItemGroup Label="Api">

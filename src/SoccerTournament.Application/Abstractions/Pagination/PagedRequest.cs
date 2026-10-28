@@ -19,7 +19,11 @@ public abstract record PagedRequest
     /// </summary>
     public string? SortBy { get; init; }
 
-    public SortDirection SortDirection { get; init; } = SortDirection.Asc;
+    /// <summary>
+    /// Dirección del orden. Si se omite, se usa la natural de cada campo
+    /// (ej. puntos y goles de mayor a menor; nombres de A a Z).
+    /// </summary>
+    public SortDirection? SortDirection { get; init; }
 
     /// <summary>
     /// Filas a omitir. Es long para evitar desbordamiento con números de página muy grandes (OFFSET acepta BIGINT).

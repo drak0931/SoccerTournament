@@ -83,10 +83,12 @@ public sealed class TeamsController : ApiControllerBase
     public async Task<IActionResult> DeleteTeam(Guid teamId, CancellationToken cancellationToken) =>
         NoContentOrProblem(await Dispatcher.SendAsync(new DeleteTeamCommand(teamId), cancellationToken));
 
-    /// <summary>Jugadores del equipo (filtros: name, position).</summary>
+    /// <summary>Jugadores del equipo (filtros: name, position). 404 si el equipo no existe.</summary>
     [HttpGet("{teamId:guid}/players")]
     [ProducesResponseType<PagedResult<PlayerResponse>>(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetTeamPlayers(Guid teamId, [FromQuery] GetPlayersQuery query, CancellationToken cancellationToken) =>
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetTeamPlayers(Guid teamId, [FromQuery] GetTeamPlayersQuery query, CancellationToken cancellationToken) =>
         OkOrProblem(await Dispatcher.QueryAsync(query with { TeamId = teamId }, cancellationToken));
 
     [HttpPost("{teamId:guid}/players")]

@@ -10,6 +10,7 @@
     <PackageReference Include="dbup-sqlserver" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
     <PackageReference Include="Dapper" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
   </ItemGroup>
 
   <!-- Scripts de esquema versionados, embebidos para ejecutarlos con DbUp al iniciar -->

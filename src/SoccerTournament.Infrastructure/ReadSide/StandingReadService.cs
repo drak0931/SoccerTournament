@@ -22,7 +22,8 @@ internal sealed class StandingReadService : IStandingReadService
             ["teamName"] = "t.full_name"
         },
         defaultOrderBy: "t.position ASC",
-        tieBreaker: "t.team_id ASC");
+        tieBreaker: "t.team_id ASC",
+        descendingByDefault: new[] { "points", "goalDifference", "goalsFor" });
 
     private readonly SqlConnectionFactory _connectionFactory;
 

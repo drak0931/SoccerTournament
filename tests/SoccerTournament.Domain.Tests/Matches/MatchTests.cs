@@ -162,6 +162,32 @@ public class MatchTests
     }
 
     [Fact]
+    public void ChangeStatus_ToCancelled_ShouldCancelScheduledMatch()
+    {
+        var match = CreateScheduledMatch();
+
+        var result = match.ChangeStatus(MatchStatus.Cancelled);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(MatchStatus.Cancelled, match.Status);
+        Assert.IsType<MatchCancelledDomainEvent>(Assert.Single(match.DomainEvents));
+    }
+
+    [Theory]
+    [InlineData(MatchStatus.Finished)]
+    [InlineData(MatchStatus.Scheduled)]
+    public void ChangeStatus_ToOtherThanCancelled_ShouldBeRejectedByDomain(MatchStatus target)
+    {
+        var match = CreateScheduledMatch();
+
+        var result = match.ChangeStatus(target);
+
+        Assert.Equal(MatchErrors.UnsupportedStatusChange, result.Error);
+        Assert.Equal(ErrorType.Validation, result.Error.Type);
+        Assert.Equal(MatchStatus.Scheduled, match.Status);
+    }
+
+    [Fact]
     public void Cancel_FinishedMatch_ShouldReturnConflict()
     {
         var match = CreateScheduledMatch();

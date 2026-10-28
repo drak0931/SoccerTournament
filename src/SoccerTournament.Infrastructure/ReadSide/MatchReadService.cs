@@ -20,7 +20,8 @@ internal sealed class MatchReadService : IMatchReadService
             ["createdAt"] = "m.created_at"
         },
         defaultOrderBy: "m.scheduled_at ASC",
-        tieBreaker: "m.uuid ASC");
+        tieBreaker: "m.uuid ASC",
+        descendingByDefault: new[] { "createdAt" });
 
     private const string SelectFrom = """
         SELECT

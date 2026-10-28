@@ -19,7 +19,8 @@ internal sealed class ScorerReadService : IScorerReadService
             ["teamName"] = "r.team_name"
         },
         defaultOrderBy: "r.goals DESC, r.last_name ASC",
-        tieBreaker: "r.player_id ASC");
+        tieBreaker: "r.player_id ASC",
+        descendingByDefault: new[] { "goals" });
 
     private readonly SqlConnectionFactory _connectionFactory;
 

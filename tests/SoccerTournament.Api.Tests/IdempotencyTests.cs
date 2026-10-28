@@ -160,12 +160,30 @@ public sealed class IdempotencyTests : IDisposable
     }
 
     [Fact]
-    public async Task PatchMatch_ToStatusOtherThanCancelled_ShouldReturn400()
+    public async Task PatchMatch_ShouldDelegateRuleToUseCaseAndMapDomainError()
     {
-        var response = await _client.PatchAsJsonAsync($"/api/matches/{Guid.NewGuid()}", new { status = "finished" });
+        var matchId = Guid.NewGuid();
+        _factory.Dispatcher.SendAsync(Arg.Any<ChangeMatchStatusCommand>(), Arg.Any<CancellationToken>())
+            .Returns(Result.Failure(MatchErrors.UnsupportedStatusChange));
 
+        var response = await _client.PatchAsJsonAsync($"/api/matches/{matchId}", new { status = "finished" });
+
+        // El controller solo orquesta: la regla vive en el dominio y llega como Result
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Contains("Match.UnsupportedStatusChange", await response.Content.ReadAsStringAsync());
+        await _factory.Dispatcher.Received(1).SendAsync(
+            Arg.Is<ChangeMatchStatusCommand>(command => command.MatchId == matchId && command.Status == MatchStatus.Finished),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task PatchMatch_Cancel_ShouldReturn204()
+    {
+        _factory.Dispatcher.SendAsync(Arg.Any<ChangeMatchStatusCommand>(), Arg.Any<CancellationToken>()).Returns(Result.Success());
+
+        var response = await _client.PatchAsJsonAsync($"/api/matches/{Guid.NewGuid()}", new { status = "cancelled" });
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
     }
 
     private Task<HttpResponseMessage> PostAsync(string url, string idempotencyKey, object body)

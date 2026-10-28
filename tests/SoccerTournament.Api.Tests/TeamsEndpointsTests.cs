@@ -6,6 +6,7 @@ using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using SoccerTournament.Api.Tests.Infrastructure;
 using SoccerTournament.Application.Abstractions.Pagination;
+using SoccerTournament.Application.Features.Players.Queries;
 using SoccerTournament.Application.Features.Teams.Commands;
 using SoccerTournament.Application.Features.Teams.Queries;
 using SoccerTournament.Domain.Abstractions;
@@ -168,6 +169,30 @@ public sealed class TeamsEndpointsTests : IDisposable
         var response = await _client.DeleteAsync($"/api/teams/{TeamId}");
 
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetTeamPlayers_ForMissingTeam_ShouldReturn404()
+    {
+        _factory.Dispatcher.QueryAsync(Arg.Any<GetTeamPlayersQuery>(), Arg.Any<CancellationToken>())
+            .Returns(Result.Failure<PagedResult<PlayerResponse>>(TeamErrors.NotFound(TeamId)));
+
+        var response = await _client.GetAsync($"/api/teams/{TeamId}/players?sortBy=jerseyNumber");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        await _factory.Dispatcher.Received(1).QueryAsync(
+            Arg.Is<GetTeamPlayersQuery>(query => query.TeamId == TeamId && query.SortBy == "jerseyNumber" && query.SortDirection == null),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Health_WhenDatabaseIsUnreachable_ShouldReportUnhealthyWithoutDetails()
+    {
+        var response = await _client.GetAsync("/health");
+
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
+        var body = await response.Content.ReadAsStringAsync();
+        Assert.Equal("Unhealthy", body);
     }
 
     [Fact]

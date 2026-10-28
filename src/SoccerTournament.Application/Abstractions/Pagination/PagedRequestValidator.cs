@@ -21,6 +21,7 @@ public abstract class PagedRequestValidator<TRequest> : AbstractValidator<TReque
 
         RuleFor(request => request.SortDirection)
             .IsInEnum()
+            .When(request => request.SortDirection.HasValue)
             .WithMessage("La dirección de ordenamiento debe ser 'asc' o 'desc'.");
 
         RuleFor(request => request.SortBy)

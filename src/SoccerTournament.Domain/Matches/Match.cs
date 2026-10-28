@@ -141,6 +141,16 @@ public sealed class Match : AggregateRoot
     }
 
     /// <summary>
+    /// Cambio de estado solicitado explícitamente (PATCH). Solo se admite la cancelación:
+    /// un partido se finaliza registrando su resultado, nunca cambiando el estado directamente.
+    /// </summary>
+    public Result ChangeStatus(MatchStatus targetStatus) => targetStatus switch
+    {
+        MatchStatus.Cancelled => Cancel(),
+        _ => MatchErrors.UnsupportedStatusChange
+    };
+
+    /// <summary>
     /// Indica si el partido admite registrar resultado (solo partidos programados). No modifica estado.
     /// </summary>
     public Result CanRegisterResult() => Status switch

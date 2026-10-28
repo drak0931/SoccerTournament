@@ -1,0 +1,13 @@
+# Contexto de build de la API (raíz del repositorio): solo se necesita src/ y los archivos de configuración de .NET
+.git
+.vs
+.vscode
+**/bin
+**/obj
+**/*.user
+tests
+frontend
+docs
+**/node_modules
+**/.next
+*.md

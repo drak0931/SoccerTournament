@@ -1,0 +1,75 @@
+# Torneo de fútbol: base de datos, API, frontend y trazas.
+# Uso:  docker-compose up --build
+#   Frontend  http://localhost:3000
+#   API       http://localhost:8080/swagger
+#   Jaeger    http://localhost:16686
+#
+# La contraseña de SQL Server se toma de la variable MSSQL_SA_PASSWORD (archivo .env, ver .env.example).
+# El valor por defecto es SOLO para este entorno local de evaluación; no usarlo en ningún otro entorno.
+
+name: soccer-tournament
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-CU26-ubuntu-22.04
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Developer"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD:-SoccerTournament#Local2026}"
+    ports:
+      # Puerto alterno para no chocar con una instancia local de SQL Server
+      - "14330:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -b -Q \"SELECT 1\" -o /dev/null"]
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 12
+
+  jaeger:
+    image: jaegertracing/jaeger:2.21.0
+    restart: unless-stopped
+    ports:
+      - "16686:16686"
+
+  api:
+    build:
+      context: .
+      dockerfile: src/SoccerTournament.Api/Dockerfile
+    # Si la BD (o la red de Docker) aún no está lista, la API termina con código 1 y Docker la reinicia
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Production"
+      ConnectionStrings__SoccerTournament: "Server=db,1433;Database=SoccerTournament;User Id=sa;Password=${MSSQL_SA_PASSWORD:-SoccerTournament#Local2026};Encrypt=True;TrustServerCertificate=True"
+      # Scripts DbUp + seed automático al iniciar si la BD está vacía
+      Database__RunMigrationsOnStartup: "true"
+      Database__SeedOnStartup: "true"
+      Database__StartupMaxRetries: "30"
+      Observability__OtlpEndpoint: "http://jaeger:4317"
+      Swagger__Enabled: "true"
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      jaeger:
+        condition: service_started
+
+  frontend:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    environment:
+      # Llamadas servidor a servidor por la red interna de Docker
+      API_BASE_URL: "http://api:8080"
+    ports:
+      - "3000:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  mssql-data:
